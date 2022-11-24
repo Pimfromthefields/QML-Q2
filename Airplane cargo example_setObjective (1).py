@@ -17,7 +17,7 @@ model = Model ('AirplaneCargo')
 # Cargo characteristics
 cargoname     = ('bulk_1', 'bulk_2', 'bulk_3', 'bulk_4')
 cargoquantity = ( 20,  16,  25,  13)        # ton
-cargovolume   = (500, 700, 600, 400)        # m3 / ton
+cargovolume   = (500, 700, 600, 40)        # m3 / ton
 cargoprofit   = (320, 400, 360, 290)        # euro / ton
 
 # Compartment characteristics
