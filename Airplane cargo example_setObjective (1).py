@@ -8,7 +8,7 @@
 
 from gurobipy import *
 
-model = Model ('AirplaneCargo')
+model = Model ('Transport Problem')
 
 
 # ---- Parameters ----
