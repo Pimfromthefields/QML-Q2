@@ -66,10 +66,6 @@ for i in N:
 
 #con3 = {} #Ensuring no subroutes
 
-#con3 = {}
-#for i in N:
-#    for j in N:
-#        con3[i,j] = model.addConstr(x[i,j] != x[j,i])
 
 con4 = {}
 for i in N:
