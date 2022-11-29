@@ -62,7 +62,7 @@ for j in N:
 
 con2 = {} #ensures that every node is leaved exactly once.
 for i in N:
-    con2[j] = model.addConstr(quicksum(x[i,j] for j in N) == 1)
+    con2[i] = model.addConstr(quicksum(x[i,j] for j in N) == 1)
 
 #con3 = {} #Ensuring no subroutes
 
@@ -83,7 +83,12 @@ for i in N:
     
 con7 = {}
 for i in N:
-    con7[i] = model.addConstr(x[i,i] = 0)
+    con7[i] = model.addConstr(x[i,i] == 0)
+    
+con8 = {}
+for i in N:
+        for j in N:
+            con8[i,j] = model.addConstr(x[j,i] == x[i,j])
 
 
 # ---- Solve ----
