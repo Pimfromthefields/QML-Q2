@@ -85,7 +85,7 @@ for i in N:
 con5 = {}
 con6 = {}
 con7 = {}
-for i in range(1,len(N)):
+for i in range(0,len(N)): # this works if one of the two for loops has 0, not when both have 0 
     con5[i] = model.addConstr(rT[i] <= T[i]) # arrival time later than ready time
     con6[i] = model.addConstr(T[i] <= dT[i]) # arrival time before due time
     for j in range(1,len(N)):
