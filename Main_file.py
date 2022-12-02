@@ -131,11 +131,11 @@ u = '%8s' % ''
 for j in range(len(N)):
     u = u + '%8.1f' % sum (d[i,j] for i in N)      
 print(u)
-print ('')
+
+
 
 print('')
 print ('Route matrix:')
-
 s = '%8s' % ''
 for j in range(len(N)):
     s = s + '%8s' % N[j]
@@ -152,34 +152,35 @@ u = '%8s' % ''
 for j in range(len(N)):
     u = u + '%8.1f' % sum (x[i,j].x for i in N)      
 print(u)
-print ('')
 
-print('')
-print ('Arrival times:')
+
+
+print ('')
+print ('Arrival times: \n')
 stored = []
+print('%8s' % 'Node' + '%8s' % 'Time' + '%8s' % 'Demand')
 for i in range(len(N)):
-    tim = '%8s' % N[i] + '%8.1f' % T[i].x
+    tim = '%8s' % N[i] + '%8.1f' % T[i].x + '%8s' % Q[i]
     stored.append(T[i].x)
     print(tim)
 
-nodes = node
 
-#nodes.sort(key = stored)
-print(nodes)
-print(stored)
+
+nodes = node
 zipped_ns = zip(nodes,stored)
 new = list(zipped_ns)
-sorted(zipped_ns, key=lambda x: x[1])
-print(new)
-#sorted(zipped_ns, key=lambda x: x[1])
-#sorted(zipped, key=operator.itemgetter(1))
-#for i in range(len(zipped_ns)):
-#    print(zipped_ns[i][0])
+res = sorted(new, key = operator.itemgetter(1))
 
-#sorted(nodes, key = stored)
-#print(stored)
-#res = sorted(nodes, key = stored)
+print('')
+print ('Arrival times sorted & including load: \n')
 
+stored = []
+total_load = sum(Q)
+print('%8s' % 'Node' + '%8s' % 'Time' + '%8s' % 'Demand' + '%8s' % 'Load')
+for i in range(len(res)):
+    total_load += -Q[res[i][0]]
+    tim = '%8s' % res[i][0] + '%8.1f' % res[i][1] + '%8s' % Q[res[i][0]] + '%8.1f' % total_load
+    print(tim)
 
 # --- Visualization ---
 G = nx.DiGraph()
