@@ -97,11 +97,11 @@ if model.status == GRB.Status.OPTIMAL: # If optimal solution is found
     print ('Total costs: %10.2f euro' % model.objVal)
     print ('')
     
-    total_distance = 0
+    #total_distance = 0
 
-    for i in N:
-        for j in N:
-            print(x[i,j].x)
+    #for i in N:
+   #     for j in N:
+    #        print(x[i,j].x)
             #total_distance = total_distance + d[i,j] * x[i,j].x
         
     #print('The total distance travelled is: ' + str(total_distance))
@@ -113,6 +113,73 @@ else:
     print ('\nNo feasible solution found')
 
 print ('\nREADY\n')
+print ('Distance matrix:')
+
+s = '%8s' % ''
+for j in range(len(N)):
+    s = s + '%8s' % N[j]
+print (s)    
+
+for i in range(len(N)):
+    s = '%8s' % N[i]
+    for j in range(len(N)):
+            s = s + '%8.1f' % d[i,j]
+    s = s + '%8.1f' % sum (d[i,j] for j in N)   
+    print(s)
+
+u = '%8s' % ''
+for j in range(len(N)):
+    u = u + '%8.1f' % sum (d[i,j] for i in N)      
+print(u)
+print ('')
+
+print('')
+print ('Route matrix:')
+
+s = '%8s' % ''
+for j in range(len(N)):
+    s = s + '%8s' % N[j]
+print (s)    
+
+for i in range(len(N)):
+    s = '%8s' % N[i]
+    for j in range(len(N)):
+            s = s + '%8.1f' % x[i,j].x
+    s = s + '%8.1f' % sum (x[i,j].x for j in N)   
+    print(s)
+
+u = '%8s' % ''
+for j in range(len(N)):
+    u = u + '%8.1f' % sum (x[i,j].x for i in N)      
+print(u)
+print ('')
+
+print('')
+print ('Arrival times:')
+stored = []
+for i in range(len(N)):
+    tim = '%8s' % N[i] + '%8.1f' % T[i].x
+    stored.append(T[i].x)
+    print(tim)
+
+nodes = node
+
+#nodes.sort(key = stored)
+print(nodes)
+print(stored)
+zipped_ns = zip(nodes,stored)
+new = list(zipped_ns)
+sorted(zipped_ns, key=lambda x: x[1])
+print(new)
+#sorted(zipped_ns, key=lambda x: x[1])
+#sorted(zipped, key=operator.itemgetter(1))
+#for i in range(len(zipped_ns)):
+#    print(zipped_ns[i][0])
+
+#sorted(nodes, key = stored)
+#print(stored)
+#res = sorted(nodes, key = stored)
+
 
 # --- Visualization ---
 G = nx.DiGraph()
