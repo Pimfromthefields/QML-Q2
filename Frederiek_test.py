@@ -23,7 +23,8 @@ rT = file[4].tolist()
 dT = file[5].tolist()
 sT = file[6].tolist()
 
-M = 100000 #nog te bepalen
+eps = 0.0001
+M = 100000 + eps  #nog te bepalen
 
 # Creating distance parameter from xloc and yloc
 d = np.zeros((len(node), len(node)))
@@ -40,17 +41,21 @@ N = range(len(node)) # this set is already defined above, but presented here aga
 x = {}  
 for i in N:
     for j in N:
-        x[i,j] = model.addVar (vtype = GRB.BINARY, name = 'X[' + str(i) + ',' + str(j) + ']')
+        x[i,j] = model.addVar(vtype = GRB.BINARY, name = 'X[' + str(i) + ',' + str(j) + ']')
 
 T = {}
 for i in N:
     T[i]=model.addVar(lb = 0, vtype=GRB.CONTINUOUS, name="T["+str(i)+"]")
 
+#u = {} # deze is niet meer nodig volgensmij
+#for i in N:
+#    u[i] = model.addVar(vtype=GRB.CONTINUOUS)
+    
 model.update ()
 
 
 # ---- Objective Function ----
-model.setObjective ((quicksum (d[i,j] * x[i,j] for i in N for j in N)))
+model.setObjective (quicksum(d[i,j] * x[i,j] for i in N for j in N))
 model.modelSense = GRB.MINIMIZE
 model.update ()
 
@@ -62,27 +67,29 @@ for j in N:
 
 con2 = {} #ensures that every node is leaved exactly once.
 for i in N:
-    con2[j] = model.addConstr(quicksum(x[i,j] for j in N) == 1)
-
-#con3 = {} #Ensuring no subroutes
-
-#con3 = {}
-#for i in N:
-#    con3[i] = model.addConstr(x[i,i]==0)
-
-con4 = {}
-for i in N:
-    for j in N:
-        if i != j:
-            con4[i,j] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M * (1 - x[i,j]))
-        
-con5 = {}
-for i in N:
-    con5[i] = model.addConstr(rT[i] <= T[i])
+    con2[i] = model.addConstr(quicksum(x[i,j] for j in N) == 1)
     
+#con3 = {} # no loops with itself (deze kan vgm weg omdat je dit al in de volgende constraint doet)
+#for i in N:
+#    con3[i] = model.addConstr(x[i,i] == 0)
+
+# Constraints for ensuring no subroutes (MTZ)
+#n = int(len(node)) - 1
+
+#con4 = {} # Ensuring no subroutes (deze kan ook weer weg door de volgende constraint)
+#for i in range(1,len(N)):
+#    for j in range(1,len(N)):
+#        con4[i,j] = model.addConstr(u[i] - u[j] + n*x[i,j] <= n-1)
+
+## Arrival time constraints
+con5 = {}
 con6 = {}
-for i in N:
-    con6[i] = model.addConstr(T[i] <= dT[i])
+con7 = {}
+for i in range(0,len(N)): # this works if one of the two for loops has 0, not when both have 0 
+    con5[i] = model.addConstr(rT[i] <= T[i]) # arrival time later than ready time
+    con6[i] = model.addConstr(T[i] <= dT[i]) # arrival time before due time
+    for j in range(1,len(N)):
+        con7[i,j] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M*(1-x[i,j]))
 
 
 # ---- Solve ----
