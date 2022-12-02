@@ -69,27 +69,15 @@ con2 = {} #ensures that every node is leaved exactly once.
 for i in N:
     con2[i] = model.addConstr(quicksum(x[i,j] for j in N) == 1)
     
-#con3 = {} # no loops with itself (deze kan vgm weg omdat je dit al in de volgende constraint doet)
-#for i in N:
-#    con3[i] = model.addConstr(x[i,i] == 0)
-
-# Constraints for ensuring no subroutes (MTZ)
-#n = int(len(node)) - 1
-
-#con4 = {} # Ensuring no subroutes (deze kan ook weer weg door de volgende constraint)
-#for i in range(1,len(N)):
-#    for j in range(1,len(N)):
-#        con4[i,j] = model.addConstr(u[i] - u[j] + n*x[i,j] <= n-1)
-
 ## Arrival time constraints
+con3 = {}
+con4 = {}
 con5 = {}
-con6 = {}
-con7 = {}
 for i in range(0,len(N)): # this works if one of the two for loops has 0, not when both have 0 
-    con5[i] = model.addConstr(rT[i] <= T[i]) # arrival time later than ready time
-    con6[i] = model.addConstr(T[i] <= dT[i]) # arrival time before due time
+    con3[i] = model.addConstr(rT[i] <= T[i]) # arrival time later than ready time
+    con4[i] = model.addConstr(T[i] <= dT[i]) # arrival time before due time
     for j in range(1,len(N)):
-        con7[i,j] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M*(1-x[i,j]))
+        con5[i,j] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M*(1-x[i,j]))
 
 
 # ---- Solve ----
