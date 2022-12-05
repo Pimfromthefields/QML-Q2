@@ -48,7 +48,7 @@ x = {}
 for i in N:
     for j in N:
         for k in K:
-            x[i,j,k] = model.addVar(vtype = GRB.BINARY, name = 'X[' + str(i) + ',' + str(j) + ',' + str(k) ']')
+            x[i,j,k] = model.addVar(vtype = GRB.BINARY, name = 'X[' + str(i) + ',' + str(j) + ',' + str(k) + ']')
 
 T = {}
 for i in N:
@@ -57,7 +57,7 @@ for i in N:
 Z = {} #
 for i in N:
     for k in K:
-        Z[i,k]=model.addVar(vtype = GRB.BINARY, name="T[" + str(i) ',' + str(k) + ']')
+        Z[i,k]=model.addVar(vtype = GRB.BINARY, name="Z[" + str(i) + "," + str(k) + ']')
 
 #u = {} # deze is niet meer nodig volgensmij
 #for i in N:
