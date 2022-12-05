@@ -93,14 +93,14 @@ for i in range(0,len(N)): # this works if one of the two for loops has 0, not wh
 #Every node can be visited by only one vehicle
 con6 = {}
 for i in range(1,len(N)):
-    con6[i] =  model.addConstr(quicksum(z[i,k] for k in K) == 1)
+    con6[i] =  model.addConstr(quicksum(z[j,k] for k in K) == 1)
 
 #All vehicles should start and end at node 0
 con7 = model.addConstr(quicksum(z[0,k] for k in K) == num_vehicle )
 
 con8 = {}
 for i in N:
-    con8[i] = model.addConstr(quicksum(Q[i]*z[i,k]  for k in K) <= Q_max)
+    con8[i] = model.addConstr(quicksum(Q[j]*z[j,k]  for k in K) <= Q_max)
     
 con9 = {}
 for j in range(1, len(N)):
