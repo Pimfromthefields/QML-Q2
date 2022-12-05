@@ -25,7 +25,7 @@ sT = file[6].tolist()
 
 Q_max = 30
 
-num_vehicle = 4
+num_vehicle = 5
 
 eps = 0.0001
 M = 100000 + eps  #nog te bepalen
@@ -216,10 +216,10 @@ for i in range(len(res)):
 
 
 # --- Visualization ---
-'''G = nx.DiGraph()
+G = nx.DiGraph()
 
 arcs = [(i,j) for i in N for j in N]
-active_arcs = [(i,j) for i in N for j in N if x[i,j].x>0.01]
+active_arcs = [(i,j,k) for i in N for j in N for k in K if x[i,j,k].x>0.01]
 
 G.add_edges_from(arcs)
 
@@ -228,14 +228,19 @@ label_list = node + [""]
 labels = {node[i]: label_list[i] for i in N}
 
 color_map = []
-for i in N:
-    color_map.append('blue')
+for i in G:
+    if i in K:
+        color_map.append('blue')
+    elif i == 0 or i == 1:
+        color_map.append('red') 
+    else: 
+        color_map.append('green')
         
 plt.figure(3,figsize=(15,15)) 
-nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=2000)
+nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=800)
 
 nx.draw_networkx_edges(G, pos, edgelist=active_arcs, edge_color='k')
 
 nx.draw_networkx_labels(G, pos, labels=labels, font_weight='bold', font_family="sans-serif", font_size=20)
 
-plt.title("Solution part B", fontweight='bold')'''
+plt.title("Solution part C", fontweight='bold')
