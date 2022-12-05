@@ -71,13 +71,13 @@ model.update ()
 
 
 # ---- Constraints ----
-con1 = {} #ensures that every node is visited exactly once
-for j in N:
-    con1[j] = model.addConstr(quicksum(x[i,j,k] for i in N for k in K) == 1)
+#con1 = {} #ensures that every node is visited exactly once
+#for j in N:
+#    con1[j] = model.addConstr(quicksum(x[i,j,k] for i in N for k in K) == 1)
 
-con2 = {} #ensures that every node is leaved exactly once
-for i in N:
-    con2[i] = model.addConstr(quicksum(x[i,j,k] for j in N for k in K) == 1)
+#con2 = {} #ensures that every node is leaved exactly once
+#for i in N:
+#    con2[i] = model.addConstr(quicksum(x[i,j,k] for j in N for k in K) == 1)
     
 ## Arrival time constraints
 con3 = {}
@@ -92,23 +92,23 @@ for i in range(0,len(N)): # this works if one of the two for loops has 0, not wh
 
 #Every node can be visited by only one vehicle
 con6 = {}
-for i in range(1,len(N)):
-    con6[i] =  model.addConstr(quicksum(z[j,k] for k in K) == 1)
+for j in range(1,len(N)):
+    con6[j] =  model.addConstr(quicksum(z[j,k] for k in K) == 1)
 
 #All vehicles should start and end at node 0
 con7 = model.addConstr(quicksum(z[0,k] for k in K) == num_vehicle )
 
 con8 = {}
-for i in N:
-    con8[i] = model.addConstr(quicksum(Q[j]*z[j,k]  for k in K) <= Q_max)
+for k in K:
+    con8[j] = model.addConstr(quicksum(Q[j]*z[j,k] for j in N) <= Q_max)
     
 con9 = {}
-for j in range(1, len(N)):
+for j in N:
     for k in K:
         con9[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == quicksum(x[j,i,k] for i in N))
 
 con10 = {}
-for j in range(1, len(N)):
+for j in N:
     for k in K:
         con10[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == z[j,k])
 
@@ -176,13 +176,13 @@ print (s)
 for i in range(len(N)):
     s = '%8s' % N[i]
     for j in range(len(N)):
-            s = s + '%8.1f' % x[i,j,k].x
-    s = s + '%8.1f' % sum (x[i,j,k].x for j in N)   
+        s = s + '%8.1f' % sum(x[i,j,k].x for k in K)
+    s = s + '%8.1f' % sum (x[i,j,k].x for j in N for k in K)   
     print(s)
 
 u = '%8s' % ''
 for j in range(len(N)):
-    u = u + '%8.1f' % sum (x[i,j,k].x for i in N)      
+    u = u + '%8.1f' % sum (x[i,j,k].x for i in N for k in K)      
 print(u)
 
 
