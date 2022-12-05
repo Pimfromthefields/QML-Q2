@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import networkx as nx
 
-model = Model ('Capacitated VRP Problem')
+model = Model ('Split delivery VRP Problem')
 
 
 
@@ -22,8 +22,8 @@ rT = file[4].tolist()
 dT = file[5].tolist()
 sT = file[6].tolist()
 
-c = 30
-num_vehicle = 5
+c = 60 
+num_vehicle = 2
 
 eps = 0.0001
 M = 100000 + eps  #nog te bepalen
@@ -38,8 +38,8 @@ for i in N:
 # ---- Sets ----
 N = range(len(node)) # this set is already defined above, but presented here again for completeness.
 K = range(num_vehicle)
-
 # ---- Decision Variables ----
+
 x = {}  
 for i in N:
     for j in N:
@@ -49,14 +49,13 @@ for i in N:
 z = {}  
 for j in N:
     for k in K:
-        z[j,k] = model.addVar(vtype = GRB.BINARY, name = 'Z[' + str(i) + ',' + str(k) + ']')
+        z[j,k] = model.addVar(lb = 0, ub = 1, vtype = GRB.CONTINUOUS, name = 'Z[' + str(i) + ',' + str(k) + ']')
 
 T = {}
 for i in N:
     T[i]=model.addVar(lb = 0, vtype=GRB.CONTINUOUS, name="T["+str(i)+"]")
-
+    
 model.update ()
-
 
 
 # ---- Objective Function ----
@@ -64,9 +63,6 @@ model.setObjective (quicksum(d[i,j] * x[i,j,k] for i in N for j in N for k in K)
 model.modelSense = GRB.MINIMIZE
 model.update ()
 
-
-
-# ---- Constraints --------
 con1 = {}
 con2 = {}
 con3 = {}
@@ -83,11 +79,11 @@ for j in range(1,len(N)):
 
 #All vehicles should start and end at node 0
 con5 = {}
-con5 = model.addConstr(quicksum(z[0,k] for k in K) == num_vehicle )
+con5 = model.addConstr(quicksum(x[i,0,k] for i in N for k in K) == num_vehicle )
 
 con6 = {}
 for k in K:
-    con6[j] = model.addConstr(quicksum(Q[j]*z[j,k] for j in N) <= c)
+    con6[j] = model.addConstr(quicksum(Q[j]*z[j,k] for j in range(1,len(N))) <= c)
     
 con7 = {}
 for j in N:
@@ -95,13 +91,12 @@ for j in N:
         con7[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == quicksum(x[j,i,k] for i in N))
 
 con8 = {}
-for j in N:
+for j in range(1,len(N)):
     for k in K:
-        con8[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == z[j,k])
-
-
+        con8[j] = model.addConstr(quicksum(x[i,j,k] for i in N) >= z[j,k])
 
 # ---- Solve ----
+
 model.setParam( 'OutputFlag', True) # silencing gurobi output or not
 model.setParam ('MIPGap', 0);       # find the optimal solution
 model.write("output.lp")            # print the model in .lp format file
@@ -161,7 +156,23 @@ for j in range(len(N)):
     u = u + '%8.1f' % sum (x[i,j,k].x for i in N for k in K)      
 print(u)
 
+print('')
+print ('Proportions per vehicle k (left axis)')
+s = '%8s' % ''
+for j in range(len(N)):
+    s = s + '%8s' % N[j]
+print (s)    
 
+for k in range(len(K)):
+    s = '%8s' % k
+    for j in range(len(N)):
+        s = s + '%8.1f' % z[j,k].x  
+    print(s)
+
+u = '%8s' % ''
+for j in range(len(N)):
+    u = u + '%8.1f' % sum (z[j,k].x for k in K)      
+print(u)
 
 print ('')
 print ('Arrival times: \n')
@@ -191,7 +202,7 @@ new = list(zipped_ns)
 res = sorted(new, key = operator.itemgetter(1))
 
 print('')
-print ('Arrival times sorted: \n')
+print ('Arrival times sorted & including load: \n')
 
 stored = []
 print('%8s' % 'Node' + '%8s' % 'Time' + '%8s' % 'Demand' + '%10s' % 'Vehicles')
@@ -213,15 +224,13 @@ label_list = node + [""]
 labels = {node[i]: label_list[i] for i in N}
 
 color_map = []
-colors = ['g','c','y','r','m','b']
-
-for j in N:
-    if j == 0:
-        color_map.append('grey')
-    else:
-        k = vehicles_list[j]
-        color_map.append(colors[k])
-    
+for i in G:
+    if i in K:
+        color_map.append('g')
+    elif i == 0 or i == 1:
+        color_map.append('g') 
+    else: 
+        color_map.append('g')
         
 plt.figure(3,figsize=(15,15)) 
 nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=800)
@@ -230,4 +239,4 @@ nx.draw_networkx_edges(G, pos, edgelist=active_arcs, edge_color='k')
 
 nx.draw_networkx_labels(G, pos, labels=labels, font_weight='bold', font_family="sans-serif", font_size=20)
 
-plt.title("Solution part C", fontweight='bold')
+plt.title("Solution part E", fontweight='bold')

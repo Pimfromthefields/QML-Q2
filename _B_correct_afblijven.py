@@ -9,11 +9,10 @@ import networkx as nx
 model = Model ('TSP Problem')
 
 
+
 # ---- Parameters ----
-
-
-file = pd.read_csv('data_small.csv', delimiter = ';', header = None)  # Load small dataset
-#file = pd.read_csv('data_large.csv', delimiter = ';', header = None) # Load big dataset
+file = pd.read_csv('data_small.txt', header = None, delim_whitespace=True)  # Load small dataset
+#file = pd.read_csv('data_large.txt', header = None, delim_whitespace=True)  # Load large dataset
 
 node = file[0].tolist()
 x_loc = file[1].tolist()
@@ -37,7 +36,6 @@ for i in N:
 N = range(len(node)) # this set is already defined above, but presented here again for completeness.
 
 # ---- Decision Variables ----
-
 x = {}  
 for i in N:
     for j in N:
@@ -47,10 +45,6 @@ T = {}
 for i in N:
     T[i]=model.addVar(lb = 0, vtype=GRB.CONTINUOUS, name="T["+str(i)+"]")
 
-#u = {} # deze is niet meer nodig volgensmij
-#for i in N:
-#    u[i] = model.addVar(vtype=GRB.CONTINUOUS)
-    
 model.update ()
 
 
@@ -81,7 +75,6 @@ for i in range(0,len(N)): # this works if one of the two for loops has 0, not wh
 
 
 # ---- Solve ----
-
 model.setParam( 'OutputFlag', True) # silencing gurobi output or not
 model.setParam ('MIPGap', 0);       # find the optimal solution
 model.write("output.lp")            # print the model in .lp format file
@@ -94,20 +87,8 @@ model.optimize ()
 print ('\n--------------------------------------------------------------------\n')
     
 if model.status == GRB.Status.OPTIMAL: # If optimal solution is found
-    print ('Total costs: %10.2f euro' % model.objVal)
+    print ('Optimal solution: %10.2f time units' % model.objVal)
     print ('')
-    
-    #total_distance = 0
-
-    #for i in N:
-   #     for j in N:
-    #        print(x[i,j].x)
-            #total_distance = total_distance + d[i,j] * x[i,j].x
-        
-    #print('The total distance travelled is: ' + str(total_distance))
-    #print('The total cost is: ' + str(round(model.objVal,2)))
-    
-    
     
 else:
     print ('\nNo feasible solution found')
@@ -196,7 +177,7 @@ labels = {node[i]: label_list[i] for i in N}
 
 color_map = []
 for i in N:
-    color_map.append('blue')
+    color_map.append('green')
         
 plt.figure(3,figsize=(15,15)) 
 nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=2000)

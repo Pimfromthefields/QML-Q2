@@ -9,10 +9,11 @@ import networkx as nx
 model = Model ('Capacitated VRP Problem')
 
 
-
 # ---- Parameters ----
-file = pd.read_csv('data_small.txt', header = None, delim_whitespace=True)  # Load small dataset
-#file = pd.read_csv('data_large.txt', header = None, delim_whitespace=True)  # Load large dataset
+
+
+file = pd.read_csv('data_small.csv', delimiter = ';', header = None)  # Load small dataset
+#file = pd.read_csv('data_large.csv', delimiter = ';', header = None) # Load big dataset
 
 node = file[0].tolist()
 x_loc = file[1].tolist()
@@ -22,8 +23,9 @@ rT = file[4].tolist()
 dT = file[5].tolist()
 sT = file[6].tolist()
 
-c = 30
-num_vehicle = 5
+c = 60
+
+num_vehicle = 2
 
 eps = 0.0001
 M = 100000 + eps  #nog te bepalen
@@ -38,8 +40,8 @@ for i in N:
 # ---- Sets ----
 N = range(len(node)) # this set is already defined above, but presented here again for completeness.
 K = range(num_vehicle)
-
 # ---- Decision Variables ----
+
 x = {}  
 for i in N:
     for j in N:
@@ -55,8 +57,11 @@ T = {}
 for i in N:
     T[i]=model.addVar(lb = 0, vtype=GRB.CONTINUOUS, name="T["+str(i)+"]")
 
+#u = {} # deze is niet meer nodig volgensmij
+#for i in N:
+#    u[i] = model.addVar(vtype=GRB.CONTINUOUS)
+    
 model.update ()
-
 
 
 # ---- Objective Function ----
@@ -65,43 +70,50 @@ model.modelSense = GRB.MINIMIZE
 model.update ()
 
 
+# ---- Constraints ----
+#con1 = {} #ensures that every node is visited exactly once
+#for j in N:
+#    con1[j] = model.addConstr(quicksum(x[i,j,k] for i in N for k in K) == 1)
 
-# ---- Constraints --------
-con1 = {}
-con2 = {}
+#con2 = {} #ensures that every node is leaved exactly once
+#for i in N:
+#    con2[i] = model.addConstr(quicksum(x[i,j,k] for j in N for k in K) == 1)
+    
+## Arrival time constraints
 con3 = {}
+con4 = {}
+con5 = {}
 for i in range(0,len(N)): # this works if one of the two for loops has 0, not when both have 0 
-    con1[i] = model.addConstr(rT[i] <= T[i]) # arrival time later than ready time
-    con2[i] = model.addConstr(T[i] <= dT[i]) # arrival time before due time
+    con3[i] = model.addConstr(rT[i] <= T[i]) # arrival time later than ready time
+    con4[i] = model.addConstr(T[i] <= dT[i]) # arrival time before due time
     for j in range(1,len(N)):
         for k in K:
-            con3[i,j,k] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M*(1-x[i,j,k]))
+            con5[i,j,k] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M*(1-x[i,j,k]))
 
-con4 = {}
+#Every node can be visited by only one vehicle
+con6 = {}
 for j in range(1,len(N)):
-    con4[j] =  model.addConstr(quicksum(z[j,k] for k in K) == 1)
+    con6[j] =  model.addConstr(quicksum(z[j,k] for k in K) == 1)
 
 #All vehicles should start and end at node 0
-con5 = {}
-con5 = model.addConstr(quicksum(z[0,k] for k in K) == num_vehicle )
-
-con6 = {}
-for k in K:
-    con6[j] = model.addConstr(quicksum(Q[j]*z[j,k] for j in N) <= c)
-    
-con7 = {}
-for j in N:
-    for k in K:
-        con7[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == quicksum(x[j,i,k] for i in N))
+con7 = model.addConstr(quicksum(x[i,0,k] for i in N for k in K) == num_vehicle )
 
 con8 = {}
+for k in K:
+    con8[j] = model.addConstr(quicksum(Q[j]*z[j,k] for j in N) <= c)
+    
+con9 = {}
 for j in N:
     for k in K:
-        con8[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == z[j,k])
+        con9[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == quicksum(x[j,i,k] for i in N))
 
-
+con10 = {}
+for j in N:
+    for k in K:
+        con10[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == z[j,k])
 
 # ---- Solve ----
+
 model.setParam( 'OutputFlag', True) # silencing gurobi output or not
 model.setParam ('MIPGap', 0);       # find the optimal solution
 model.write("output.lp")            # print the model in .lp format file
@@ -114,8 +126,20 @@ model.optimize ()
 print ('\n--------------------------------------------------------------------\n')
     
 if model.status == GRB.Status.OPTIMAL: # If optimal solution is found
-    print ('Optimal solution: %10.2f time units' % model.objVal)
+    print ('Total costs: %10.2f euro' % model.objVal)
     print ('')
+    
+    #total_distance = 0
+
+    #for i in N:
+   #     for j in N:
+    #        print(x[i,j].x)
+            #total_distance = total_distance + d[i,j] * x[i,j].x
+        
+    #print('The total distance travelled is: ' + str(total_distance))
+    #print('The total cost is: ' + str(round(model.objVal,2)))
+    
+    
     
 else:
     print ('\nNo feasible solution found')
@@ -191,7 +215,7 @@ new = list(zipped_ns)
 res = sorted(new, key = operator.itemgetter(1))
 
 print('')
-print ('Arrival times sorted: \n')
+print ('Arrival times sorted & including load: \n')
 
 stored = []
 print('%8s' % 'Node' + '%8s' % 'Time' + '%8s' % 'Demand' + '%10s' % 'Vehicles')
@@ -213,15 +237,13 @@ label_list = node + [""]
 labels = {node[i]: label_list[i] for i in N}
 
 color_map = []
-colors = ['g','c','y','r','m','b']
-
-for j in N:
-    if j == 0:
-        color_map.append('grey')
-    else:
-        k = vehicles_list[j]
-        color_map.append(colors[k])
-    
+for i in G:
+    if i in K:
+        color_map.append('g')
+    elif i == 0 or i == 1:
+        color_map.append('g') 
+    else: 
+        color_map.append('g')
         
 plt.figure(3,figsize=(15,15)) 
 nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=800)
