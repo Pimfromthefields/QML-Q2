@@ -39,7 +39,7 @@ N = range(len(node)) # this set is already defined above, but presented here aga
 x = {}  
 for i in N:
     for j in N:
-        x[i,j] = model.addVar(vtype = GRB.BINARY, name = 'X[' + str(i) + ',' + str(j) + ']')
+        x[i,j] = model.addVar(vtype = GRB.BINARY, name = 'x[' + str(i) + ',' + str(j) + ']')
 
 T = {}
 for i in N:
@@ -73,6 +73,9 @@ for i in range(0,len(N)): # this works if one of the two for loops has 0, not wh
     for j in range(1,len(N)):
         con5[i,j] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M*(1-x[i,j]))
 
+con6 = {}
+for i in N:
+    con6[i] = model.addConstr(x[i,i] == 0)
 
 # ---- Solve ----
 model.setParam( 'OutputFlag', True) # silencing gurobi output or not

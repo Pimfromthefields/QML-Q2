@@ -22,8 +22,8 @@ rT = file[4].tolist()
 dT = file[5].tolist()
 sT = file[6].tolist()
 
-c = 30
-num_vehicle = 5
+c = 60
+num_vehicle = 2
 
 eps = 0.0001
 M = 100000 + eps  #nog te bepalen
@@ -44,12 +44,12 @@ x = {}
 for i in N:
     for j in N:
         for k in K:
-            x[i,j,k] = model.addVar(vtype = GRB.BINARY, name = 'X[' + str(i) + ',' + str(j) + ',' + str(k) + ']')
+            x[i,j,k] = model.addVar(vtype = GRB.BINARY, name = 'x[' + str(i) + ',' + str(j) + ',' + str(k) + ']')
 
 z = {}  
 for j in N:
     for k in K:
-        z[j,k] = model.addVar(vtype = GRB.BINARY, name = 'Z[' + str(i) + ',' + str(k) + ']')
+        z[j,k] = model.addVar(vtype = GRB.BINARY, name = 'z[' + str(j) + ',' + str(k) + ']')
 
 T = {}
 for i in N:
@@ -83,7 +83,7 @@ for j in range(1,len(N)):
 
 #All vehicles should start and end at node 0
 con5 = {}
-con5 = model.addConstr(quicksum(z[0,k] for k in K) == num_vehicle )
+con5 = model.addConstr(quicksum(x[i,0,k] for i in range(1,len(N)) for k in K) <= num_vehicle )
 
 con6 = {}
 for k in K:
@@ -99,7 +99,10 @@ for j in N:
     for k in K:
         con8[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == z[j,k])
 
-
+con9 = {}
+for i in N:
+    for k in K:
+        con9[i,k] = model.addConstr(x[i,i,k] == 0)
 
 # ---- Solve ----
 model.setParam( 'OutputFlag', True) # silencing gurobi output or not
