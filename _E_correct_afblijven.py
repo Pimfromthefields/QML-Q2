@@ -44,12 +44,12 @@ x = {}
 for i in N:
     for j in N:
         for k in K:
-            x[i,j,k] = model.addVar(vtype = GRB.BINARY, name = 'X[' + str(i) + ',' + str(j) + ',' + str(k) + ']')
+            x[i,j,k] = model.addVar(vtype = GRB.BINARY, name = 'x[' + str(i) + ',' + str(j) + ',' + str(k) + ']')
 
 z = {}  
 for j in N:
     for k in K:
-        z[j,k] = model.addVar(lb = 0, ub = 1, vtype = GRB.CONTINUOUS, name = 'Z[' + str(i) + ',' + str(k) + ']')
+        z[j,k] = model.addVar(lb = 0, ub = 1, vtype = GRB.CONTINUOUS, name = 'z[' + str(j) + ',' + str(k) + ']')
 
 T = {}
 for i in N:
@@ -79,7 +79,7 @@ for j in range(1,len(N)):
 
 #All vehicles should start and end at node 0
 con5 = {}
-con5 = model.addConstr(quicksum(x[i,0,k] for i in N for k in K) == num_vehicle )
+con5 = model.addConstr(quicksum(x[i,0,k] for i in range(1,len(N)) for k in K) <= num_vehicle )
 
 con6 = {}
 for k in K:
@@ -94,6 +94,11 @@ con8 = {}
 for j in range(1,len(N)):
     for k in K:
         con8[j] = model.addConstr(quicksum(x[i,j,k] for i in N) >= z[j,k])
+        
+con9 = {}
+for i in N:
+    for k in K:
+        con9[i,k] = model.addConstr(x[i,i,k]==0)
 
 # ---- Solve ----
 
@@ -177,7 +182,9 @@ print(u)
 print ('')
 print ('Arrival times: \n')
 stored = []
-vehicles_list = ['++','++','++','++','++','++','++']
+vehicles_list = []
+for i in N:
+    vehicles_list.append('++')
 print('%8s' % 'Node' + '%8s' % 'Time' + '%8s' % 'Demand' + '%10s' % 'Vehicles')
 for i in range(0,1):
     tim = '%8s' % N[i] + '%8.1f' % T[i].x + '%8s' % Q[i] + '%8s' % 'all'
