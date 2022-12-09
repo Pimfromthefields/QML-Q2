@@ -23,7 +23,7 @@ dT = file[5].tolist()
 sT = file[6].tolist()
 
 c = 100
-num_vehicle = 14
+num_vehicle = 20
 
 eps = 0.0001
 M = 100000 + eps  #nog te bepalen
@@ -89,15 +89,13 @@ for k in K:
     con6[j] = model.addConstr(quicksum(Q[j]*z[j,k] for j in range(1,len(N))) <= c)
     
 con7 = {}
+con9 = {}
 for j in N:
     for k in K:
         con7[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == quicksum(x[j,i,k] for i in N))
+        con9[i,k] = model.addConstr(x[j,j,k]==0)
 
-con9 = {}
-for i in N:
-    for k in K:
-        con9[i,k] = model.addConstr(x[i,i,k]==0)
-
+        
 # ---- Solve ----
 
 model.setParam( 'OutputFlag', True) # silencing gurobi output or not
