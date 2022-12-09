@@ -11,8 +11,8 @@ model = Model ('Split delivery VRP Problem')
 
 
 # ---- Parameters ----
-file = pd.read_csv('data_small.txt', header = None, delim_whitespace=True)  # Load small dataset
-#file = pd.read_csv('data_large.txt', header = None, delim_whitespace=True)  # Load large dataset
+#file = pd.read_csv('data_small.txt', header = None, delim_whitespace=True)  # Load small dataset
+file = pd.read_csv('data_large.txt', header = None, delim_whitespace=True)  # Load large dataset
 
 node = file[0].tolist()
 x_loc = file[1].tolist()
@@ -22,8 +22,8 @@ rT = file[4].tolist()
 dT = file[5].tolist()
 sT = file[6].tolist()
 
-c = 60
-num_vehicle = 2
+c = 100
+num_vehicle = 20
 
 eps = 0.0001
 M = 100000 + eps  #nog te bepalen
@@ -74,8 +74,11 @@ for i in range(0,len(N)): # this works if one of the two for loops has 0, not wh
             con3[i,j,k] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M*(1-x[i,j,k]))
 
 con4 = {}
+con8 = {}
 for j in range(1,len(N)):
     con4[j] =  model.addConstr(quicksum(z[j,k] for k in K) == 1)
+    for k in K:
+        con8[j] = model.addConstr(quicksum(x[i,j,k] for i in N) >= z[j,k])
 
 #All vehicles should start and end at node 0
 con5 = {}
@@ -86,24 +89,18 @@ for k in K:
     con6[j] = model.addConstr(quicksum(Q[j]*z[j,k] for j in range(1,len(N))) <= c)
     
 con7 = {}
+con9 = {}
 for j in N:
     for k in K:
         con7[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == quicksum(x[j,i,k] for i in N))
+        con9[i,k] = model.addConstr(x[j,j,k]==0)
 
-con8 = {}
-for j in range(1,len(N)):
-    for k in K:
-        con8[j] = model.addConstr(quicksum(x[i,j,k] for i in N) >= z[j,k])
         
-con9 = {}
-for i in N:
-    for k in K:
-        con9[i,k] = model.addConstr(x[i,i,k]==0)
-
 # ---- Solve ----
 
 model.setParam( 'OutputFlag', True) # silencing gurobi output or not
 model.setParam ('MIPGap', 0);       # find the optimal solution
+model.setParam('TimeLimit', 1800)     # setting a time limit on running the model
 model.write("output.lp")            # print the model in .lp format file
 
 model.optimize ()
@@ -182,9 +179,11 @@ print(u)
 print ('')
 print ('Arrival times: \n')
 stored = []
+
 vehicles_list = []
 for i in N:
     vehicles_list.append('++')
+    
 print('%8s' % 'Node' + '%8s' % 'Time' + '%8s' % 'Demand' + '%10s' % 'Vehicles')
 for i in range(0,1):
     tim = '%8s' % N[i] + '%8.1f' % T[i].x + '%8s' % Q[i] + '%8s' % 'all'
