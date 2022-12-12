@@ -216,7 +216,7 @@ label_list = node + [""]
 labels = {node[i]: label_list[i] for i in N}
 
 color_map = []
-colors = ['g','c','y','r','m','b']
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#e377c2']
 
 for j in N:
     if j == 0:

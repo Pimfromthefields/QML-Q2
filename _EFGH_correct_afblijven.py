@@ -12,8 +12,8 @@ model = Model ('Split delivery VRP Problem - Exercise E, F, G, H')
 
 
 # ---- Parameters ----
-file = pd.read_csv('data_small.txt', header = None, delim_whitespace=True)  # Load small dataset
-#file = pd.read_csv('data_large.txt', header = None, delim_whitespace=True)  # Load large dataset
+#file = pd.read_csv('data_small.txt', header = None, delim_whitespace=True)  # Load small dataset
+file = pd.read_csv('data_large.txt', header = None, delim_whitespace=True)  # Load large dataset
 
 node = file[0].tolist()
 x_loc = file[1].tolist()
@@ -23,8 +23,8 @@ rT = file[4].tolist()
 dT = file[5].tolist()
 sT = file[6].tolist()
 
-num_vehicle = 6
-c = 30
+num_vehicle = 15
+c = 200
 
 eps = 0.0001
 M = 100000 + eps  #nog te bepalen
@@ -267,6 +267,6 @@ nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=700)
 
 nx.draw_networkx_edges(G, pos, edgelist=active_arcs, edge_color='k')
 
-nx.draw_networkx_labels(G, pos, labels=labels, font_weight='bold', font_family="sans-serif", font_size=20)
+nx.draw_networkx_labels(G, pos, labels=labels, font_weight='bold', font_family="sans-serif", font_size=15)
 
 plt.title("Solution part E", fontweight='bold')
