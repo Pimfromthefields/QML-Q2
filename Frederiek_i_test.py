@@ -107,8 +107,8 @@ for j in range(1,len(N)):
 con12={}
 con13={}
 for k in K:
-    con12[k] = model.addConstr(quicksum(x[0,j,k] for j in N) ==1)
-    con13[k] = model.addConstr(quicksum(x[j,0,k] for j in N) ==1)
+    con12[k] = model.addConstr(quicksum(x[0,j,k] for j in N) <=1)
+    con13[k] = model.addConstr(quicksum(x[j,0,k] for j in N) <=1)
     
 con14={}
 for j in range(1,len(N)):

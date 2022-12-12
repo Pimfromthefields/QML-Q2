@@ -81,35 +81,35 @@ for i in N:
         for j in range(1,len(N)):
             con3[i,j,k] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M*(1-x[i,j,k]))
 
-con4 = {}
+con4 = {} #demand satisfy
 for j in range(1,len(N)):
     con4[j] =  model.addConstr(quicksum(z[j,k] for k in K) == 1)
 
-con6 = {}
+con6 = {} # vehicle capacity 
 for k in K:
     con6[j] = model.addConstr(quicksum(Q[j]*z[j,k] for j in range(1,len(N))) <= c)
     
 con7 = {}
-for j in range(1,len(N)):
+for j in range(1,len(N)): # hier stond in N
     for k in K:
         con7[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == quicksum(x[j,i,k] for i in N))
         
-con9 = {}
+con9 = {} # no self loops
 for i in N:
     for k in K:
         con9[i] = model.addConstr(x[i,i,k] == 0)
 
-con10={}
-con11={}
-for j in range(1,len(N)):
-    con10[j] = model.addConstr(quicksum(x[i,j,k] for k in K for i in N)>=1)
-    con11[j] = model.addConstr(quicksum(x[j,i,k] for k in K for i in N)>=1)
+#con10={}
+#con11={}
+#for j in range(1,len(N)):
+#    con10[j] = model.addConstr(quicksum(x[i,j,k] for k in K for i in N)>=1)
+#    con11[j] = model.addConstr(quicksum(x[j,i,k] for k in K for i in N)>=1)
 
 con12={}
 con13={}
 for k in K:
-    con12[k] = model.addConstr(quicksum(x[0,j,k] for j in N) ==1)
-    con13[k] = model.addConstr(quicksum(x[j,0,k] for j in N) ==1)
+    con12[k] = model.addConstr(quicksum(x[0,j,k] for j in N) <=1)
+    con13[k] = model.addConstr(quicksum(x[j,0,k] for j in N) <=1)
     
 con14={}
 for j in range(1,len(N)):
@@ -264,18 +264,18 @@ label_list = node + [""]
 labels = {node[i]: label_list[i] for i in N}
 
 color_map = []
-colors = ['g','c','y','r','m','b']
+#colors = ['g','c','y','r','m','b']
 
-for j in vehicles_list:
-    if j == 'all':
-        color_map.append('grey')
-    elif j == '++':
-        color_map.append('brown')
-    else:
-        color_map.append(colors[j])
+#for j in vehicles_list:
+#    if j == 'all':
+#        color_map.append('grey')
+#    elif j == '++':
+#        color_map.append('brown')
+#    else:
+#        color_map.append(colors[j])
         
        
-        
+color_map.append('blue')        
 plt.figure(3,figsize=(15,15)) 
 nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=800)
 
