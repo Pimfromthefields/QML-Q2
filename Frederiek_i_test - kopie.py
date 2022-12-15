@@ -5,15 +5,14 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 import networkx as nx
-import seaborn as sns
 
-model = Model ('Split delivery VRP Problem - Exercise E, F, G & H')
+model = Model ('Split delivery + heteregeneous fleet VRP Problem - Exercise I & J')
 
 
 
 # ---- Parameters ----
-#file = pd.read_csv('data_small.txt', header = None, delim_whitespace=True)  # Load small dataset
-file = pd.read_csv('data_large.txt', header = None, delim_whitespace=True)  # Load large dataset
+file = pd.read_csv('data_small.txt', header = None, delim_whitespace=True)  # Load small dataset
+#file = pd.read_csv('data_large.txt', header = None, delim_whitespace=True)  # Load large dataset
 
 node = file[0].tolist()
 x_loc = file[1].tolist()
@@ -23,8 +22,22 @@ rT = file[4].tolist()
 dT = file[5].tolist()
 sT = file[6].tolist()
 
-num_vehicle = 20
-c = 200
+#num_vehicle = 25
+
+#c = []
+#fc = []
+
+#for i in range(num_vehicle):
+#    if i < 10:
+#        c.append(20)
+#        fc.append(100)
+#    else:
+ #       c.append(100)
+#        fc.append(4000)
+
+num_vehicle = 8
+c = [100,100,20,20,20,20,20,20]
+fc = [4000,4000,100,100,100,100,100,100]
 
 eps = 0.0001
 M = 100000 + eps  #nog te bepalen
@@ -62,12 +75,12 @@ for j in N:
     for k in K:
         y[j,k] = model.addVar(lb = 0, ub = 1, vtype = GRB.CONTINUOUS, name = 'y[' + str(j) + ',' + str(k) + ']')
 
+
 model.update ()
 
 
-
 # ---- Objective Function ----
-model.setObjective (quicksum(d[i,j] * x[i,j,k] for i in N for j in N for k in K))
+model.setObjective (quicksum(d[i,j] * x[i,j,k] for i in N for j in N for k in K) + quicksum(fc[k]*w[k] for k in K))
 model.modelSense = GRB.MINIMIZE
 model.update ()
 
@@ -103,7 +116,7 @@ con12 = {}
 con13 = {}
 con14 = {}
 for k in K:
-    con11[j] = model.addConstr(quicksum(Q[j]*y[j,k] for j in range(1,len(N))) <= c)
+    con11[j] = model.addConstr(quicksum(Q[j]*y[j,k] for j in range(1,len(N))) <= c[k])
     con12[k] = model.addConstr(quicksum(x[0,j,k] for j in N) <=1)
     con13[k] = model.addConstr(quicksum(x[j,0,k] for j in N) <=1)
     con14[k] = model.addConstr(w[k] == 1-x[0,0,k])
@@ -112,7 +125,7 @@ for k in K:
 
 model.setParam( 'OutputFlag', True) # silencing gurobi output or not
 model.setParam ('MIPGap', 0);       # find the optimal solution
-model.setParam('TimeLimit',1800)    # limit the running time to 1800 seconds (30 minutes)
+model.setParam('TimeLimit',1800)
 model.write("output.lp")            # print the model in .lp format file
 
 model.optimize ()
@@ -238,7 +251,7 @@ for i in range(len(res)):
     tim = '%8s' % res[i][0] + '%8.1f' % res[i][1] + '%8s' % Q[res[i][0]] + '%8s' % res[i][2]
     print(tim)
 
-
+print(vehicles_list)
 
 # --- Visualization ---
 G = nx.DiGraph()
@@ -255,13 +268,16 @@ labels = {node[i]: label_list[i] for i in N}
 color_map = []
 colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#7FFF00', '#FFD700', '#F08080', '#FFA07A', '#03A89E', '#FFE4B5', '#FFFF00', '#FF6347', '#00FF7F', '#87CEFF', '#A52A2A']
 
+
 for j in vehicles_list:
     if j == 'all':
         color_map.append('grey')
     elif j == '++':
         color_map.append('#8c564b')
+    elif j < 2: #for large dataset set j < 10. Then cargo bikes are green and the vans are blue.
+        color_map.append('g')
     else:
-        color_map.append(colors[j])
+        color_map.append('b')
         
 plt.figure(3,figsize=(15,15)) 
 nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=700)
