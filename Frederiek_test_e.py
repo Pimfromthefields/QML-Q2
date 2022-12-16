@@ -44,14 +44,15 @@ N = range(len(node)) # this set is already defined above, but presented here aga
 K = range(num_vehicle)
 # ---- Decision Variables ----
 
-x = {}
-T = {}  
+con1 = {}
+con2 = {}
+con3 = {}
 for i in N:
-#    for k in K: # moeten we nog iets toevoegen voor een vehicle afhankelijke tijd?
-     T[i]=model.addVar(lb = 0, vtype=GRB.CONTINUOUS, name="T["+str(i)+"]")
-     for j in N:
-         for k in K:
-             x[i,j,k] = model.addVar(vtype = GRB.BINARY, name = 'X[' + str(i) + ',' + str(j) + ',' + str(k) + ']')
+    for k in K:# this works if one of the two for loops has 0, not when both have 0 
+        con1[i,k] = model.addConstr(rT[i] <= T[i,k]) # arrival time later than ready time
+        con2[i,k] = model.addConstr(T[i,k] <= dT[i]) # arrival time before due time
+        for j in range(1,len(N)):
+            con3[i,j,k] = model.addConstr(T[j,k] >= T[i,k] + sT[i] + d[i,j] - M*(1-x[i,j,k]))
 
 z1 = {}
 for k in K:
@@ -99,11 +100,11 @@ for i in N:
     for k in K:
         con9[i] = model.addConstr(x[i,i,k] == 0)
 
-#con10={}
-#con11={}
-#for j in range(1,len(N)):
-#    con10[j] = model.addConstr(quicksum(x[i,j,k] for k in K for i in N)>=1)
-#    con11[j] = model.addConstr(quicksum(x[j,i,k] for k in K for i in N)>=1)
+con10={}
+con11={}
+for j in range(1,len(N)):
+    con10[j] = model.addConstr(quicksum(x[i,j,k] for k in K for i in N)>=1)
+    con11[j] = model.addConstr(quicksum(x[j,i,k] for k in K for i in N)>=1)
 
 con12={}
 con13={}
