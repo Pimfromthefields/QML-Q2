@@ -53,10 +53,6 @@ for i in N:
          for k in K:
              x[i,j,k] = model.addVar(vtype = GRB.BINARY, name = 'x[' + str(i) + ',' + str(j) + ',' + str(k) + ']')
 
-w = {}
-for k in K:
-    w[k] = model.addVar(vtype = GRB.BINARY, name="w["+str(k)+"]")
-
 y = {}  
 for j in N:
     for k in K:
@@ -75,7 +71,6 @@ con1 = {}
 con2 = {}
 con3 = {}
 con4 = {}
-con5 = {}
 for i in N:
     con1[i] = model.addConstr(rT[i] <= T[i]) # arrival time later than ready time
     con2[i] = model.addConstr(T[i] <= dT[i]) # arrival time before due time
@@ -83,30 +78,29 @@ for i in N:
         con3[i] = model.addConstr(x[i,i,k] == 0)
         for j in range(1,len(N)):
             con4[i,j,k] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M*(1-x[i,j,k]))
-            con5[i,j,k] = model.addConstr(w[k] >= x[i,j,k])
 
+
+con5 = {}
 con6 = {}
 con7 = {}
 con8 = {}
 con9 = {}
-con10 = {}
 for j in range(1,len(N)):
-    con6[j] =  model.addConstr(quicksum(y[j,k] for k in K) == 1)
-    con7[j] = model.addConstr(quicksum(x[i,j,k] for k in K for i in N)>=1)
-    con8[j] = model.addConstr(quicksum(x[j,i,k] for k in K for i in N)>=1)
+    con5[j] =  model.addConstr(quicksum(y[j,k] for k in K) == 1)
+    con6[j] = model.addConstr(quicksum(x[i,j,k] for k in K for i in N)>=1)
+    con7[j] = model.addConstr(quicksum(x[j,i,k] for k in K for i in N)>=1)
     for k in K:
-        con9[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == quicksum(x[j,i,k] for i in N))
-        con10[j,k] = model.addConstr(y[j,k]<=M/Q[j]*quicksum(x[i,j,k] for i in N))
+        con8[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == quicksum(x[j,i,k] for i in N))
+        con9[j,k] = model.addConstr(y[j,k]<=M/Q[j]*quicksum(x[i,j,k] for i in N))
 
+con10 = {}
 con11 = {}
 con12 = {}
-con13 = {}
-con14 = {}
 for k in K:
-    con11[j] = model.addConstr(quicksum(Q[j]*y[j,k] for j in range(1,len(N))) <= c)
-    con12[k] = model.addConstr(quicksum(x[0,j,k] for j in N) <=1)
-    con13[k] = model.addConstr(quicksum(x[j,0,k] for j in N) <=1)
-    con14[k] = model.addConstr(w[k] == 1-x[0,0,k])
+    con10[j] = model.addConstr(quicksum(Q[j]*y[j,k] for j in range(1,len(N))) <= c)
+    con11[k] = model.addConstr(quicksum(x[0,j,k] for j in N) <=1)
+    con12[k] = model.addConstr(quicksum(x[j,0,k] for j in N) <=1)
+
 
 # ---- Solve ----
 
