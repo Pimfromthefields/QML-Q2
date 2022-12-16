@@ -183,7 +183,7 @@ for k in K:
 con54 = {}
 for k in K:
     for i in depotsset:
-        con54[k,i] = model.addConstr(Q[i,k] == 0)
+        con54[k,i] = model.addConstr(Q[i,k] == 0)eq
         
 #constraint 6: The total number of times a depot is left is equal to the number of vehicles
 con6 = {}
