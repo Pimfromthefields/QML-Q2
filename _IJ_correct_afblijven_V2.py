@@ -11,8 +11,8 @@ model = Model ('Split delivery + heteregeneous fleet VRP Problem - Exercise I & 
 
 
 # ---- Parameters ----
-#file = pd.read_csv('data_small.txt', header = None, delim_whitespace=True)  # Load small dataset
-file = pd.read_csv('data_large.txt', header = None, delim_whitespace=True)  # Load large dataset
+file = pd.read_csv('data_small.txt', header = None, delim_whitespace=True)  # Load small dataset
+#file = pd.read_csv('data_large.txt', header = None, delim_whitespace=True)  # Load large dataset
 
 node = file[0].tolist()
 x_loc = file[1].tolist()
@@ -22,22 +22,22 @@ rT = file[4].tolist()
 dT = file[5].tolist()
 sT = file[6].tolist()
 
-num_vehicle = 25
+#num_vehicle = 25
 
-c = []
-fc = []
+#c = []
+#fc = []
 
-for i in range(num_vehicle):
-    if i < 10:
-        c.append(20)
-        fc.append(100)
-    else:
-        c.append(100)
-        fc.append(4000)
+#for i in range(num_vehicle):
+#    if i < 10:
+#        c.append(20)
+#        fc.append(100)
+#    else:
+#        c.append(100)
+#        fc.append(4000)
 
-#num_vehicle = 8
-#c = [100,100,20,20,20,20,20,20]
-#fc = [4000,4000,100,100,100,100,100,100]
+num_vehicle = 8
+c = [100,100,20,20,20,20,20,20]
+fc = [4000,4000,100,100,100,100,100,100]
 
 eps = 0.0001
 M = 100000 + eps  #nog te bepalen
@@ -275,9 +275,9 @@ for j in vehicles_list:
     elif j == '++':
         color_map.append('#8c564b')
     elif j < 10: #for large dataset set j < 10. Then cargo bikes are green and the vans are blue.
-        color_map.append('b')
-    else:
         color_map.append('g')
+    else:
+        color_map.append('b')
         
 plt.figure(3,figsize=(15,15)) 
 nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=700)
