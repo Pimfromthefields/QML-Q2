@@ -23,8 +23,8 @@ rT = file[4].tolist()
 dT = file[5].tolist()
 sT = file[6].tolist()
 
-num_vehicle = 20
-c = 200
+num_vehicle = 12
+c = 140
 
 eps = 0.0001
 M = 100000 + eps  #nog te bepalen
