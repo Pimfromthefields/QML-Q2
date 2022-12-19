@@ -30,7 +30,7 @@ fc = []
 for i in range(num_vehicle):
     if i < 10:
         c.append(20)
-        fc.append(100)
+        fc.append(0)
     else:
         c.append(100)
         fc.append(4000)
@@ -96,10 +96,7 @@ for i in N:
         con3[i] = model.addConstr(x[i,i,k] == 0)
         for j in range(1,len(N)):
             con4[i,j,k] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M*(1-x[i,j,k]))
-#            con5[i,j,k] = model.addConstr(w[k] >= x[i,j,k])
 
-#for k in K:
-#    con5[k] = model.addConstr(w[k] == quicksum(x[0,j,k] for j in range(1,len(N))))
 
 con6 = {}
 con7 = {}
@@ -121,9 +118,6 @@ con13 = {}
 for k in K:
     con5[k] = model.addConstr(w[k] == quicksum(x[0,j,k] for j in range(1,len(N))))
     con11[j] = model.addConstr(quicksum(Q[j]*y[j,k] for j in range(1,len(N))) <= c[k])
-    con12[k] = model.addConstr(quicksum(x[0,j,k] for j in N) <=1)
-    con13[k] = model.addConstr(quicksum(x[j,0,k] for j in N) <=1)
-#    con14[k] = model.addConstr(w[k] == 1-x[0,0,k])
 
 # ---- Solve ----
 
@@ -279,9 +273,9 @@ for j in vehicles_list:
     elif j == '++':
         color_map.append('#8c564b')
     elif j < 10: #for large dataset set j < 10. Then cargo bikes are green and the vans are blue.
-        color_map.append('b')
-    else:
         color_map.append('g')
+    else:
+        color_map.append('b')
         
 plt.figure(3,figsize=(15,15)) 
 nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=700)
@@ -290,4 +284,4 @@ nx.draw_networkx_edges(G, pos, edgelist=active_arcs, edge_color='k')
 
 nx.draw_networkx_labels(G, pos, labels=labels, font_weight='bold', font_family="sans-serif", font_size=15)
 
-plt.title("Solution part E", fontweight='bold')
+plt.title("Solution part J", fontweight='bold')
