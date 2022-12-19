@@ -30,7 +30,7 @@ fc = []
 for i in range(num_vehicle):
     if i < 10:
         c.append(20)
-        fc.append(0)
+        fc.append(50)
     else:
         c.append(100)
         fc.append(4000)
@@ -114,7 +114,6 @@ for j in range(1,len(N)):
 con11 = {}
 con12 = {}
 con13 = {}
-#con14 = {}
 for k in K:
     con5[k] = model.addConstr(w[k] == quicksum(x[0,j,k] for j in range(1,len(N))))
     con11[j] = model.addConstr(quicksum(Q[j]*y[j,k] for j in range(1,len(N))) <= c[k])
