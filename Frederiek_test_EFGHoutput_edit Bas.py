@@ -191,41 +191,43 @@ print(u)
 
 
 
-print ('')
-print ('Arrival times: \n')
 stored = []
-#vehicles_list = ['++','++','++','++','++','++','++']
 vehicles_list = []
 for i in N:
     vehicles_list.append('-1')
-print('%8s' % 'Node' + '%8s' % 'Time' + '%8s' % 'Demand' + '%10s' % 'Vehicles')
 for i in range(0,1):
-    tim = '%8s' % N[i] + '%8.1f' % T[i].x + '%8s' % Q[i] + '%8s' % 'all'
     stored.append(T[i].x)
     vehicles_list[i]='all'
-    print(tim)
 
-for i in range(1, len(N)):
-    tim = '%8s' % N[i] + '%8.1f' % T[i].x + '%8s' % Q[i] + '      '
+for i in range(1, len(N)):   
     for k in range(len(K)):
         if y[i,k].x >= 0.99:
-            tim += '%2s' % k
             vehicles_list[i]=k
         elif 0 < y[i,k].x < 0.99:
-            tim += '%s' % '+'
             vehicles_list[i] = '++'
     stored.append(T[i].x)
-    print(tim)
 
 nodes = node
-zipped_ns = zip(nodes,stored,vehicles_list)
-new = list(zipped_ns)
-res = sorted(new, key = operator.itemgetter(1))
 
+print ('')
+print ('Arrival times sorted by node: \n')
+
+zipped_ns2 = zip(nodes,stored,vehicles_list)
+new2 = list(zipped_ns2)
+res2 = sorted(new2, key = operator.itemgetter(0))
+
+print('%8s' % 'Node' + '%8s' % 'Time' + '%8s' % 'Demand' + '%10s' % 'Vehicles')
+for i in range(len(res2)):
+    tim = '%8s' % res2[i][0] + '%8.1f' % res2[i][1] + '%8s' % Q[res2[i][0]] + '%8s' % res2[i][2]
+    print(tim)
 
 
 print('')
 print ('Arrival times sorted by time: \n')
+
+zipped_ns = zip(nodes,stored,vehicles_list)
+new = list(zipped_ns)
+res = sorted(new, key = operator.itemgetter(1))
 
 print('%8s' % 'Node' + '%8s' % 'Time' + '%8s' % 'Demand' + '%10s' % 'Vehicles')
 for i in range(len(res)):
