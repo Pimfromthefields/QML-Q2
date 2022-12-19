@@ -30,7 +30,7 @@ fc = []
 for i in range(num_vehicle):
     if i < 10:
         c.append(20)
-        fc.append(50)
+        fc.append(950)
     else:
         c.append(100)
         fc.append(4000)
