@@ -23,7 +23,7 @@ dT = file[5].tolist()
 sT = file[6].tolist()
 
 eps = 0.0001
-M = 1000 + eps  #larger than the capacity of the largest vehicles
+M = 5000 + eps  #larger than the capacity of the largest vehicles
 
 # Creating distance parameter from xloc and yloc
 d = np.zeros((len(node), len(node)))

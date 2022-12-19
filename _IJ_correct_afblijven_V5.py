@@ -40,7 +40,7 @@ for i in range(num_vehicle):
 #fc = [4000,4000,100,100,100,100,100,100]
 
 eps = 0.0001
-M = 1000 + eps  #nog te bepalen
+M = 5000 + eps  #nog te bepalen
 
 # Creating distance parameter from xloc and yloc
 d = np.zeros((len(node), len(node)))
@@ -148,24 +148,24 @@ else:
 
 
 print ('\nREADY\n')
-print ('Distance matrix:')
-
-s = '%8s' % ''
-for j in range(len(N)):
-    s = s + '%8s' % N[j]
-print (s)    
-
-for i in range(len(N)):
-    s = '%8s' % N[i]
-    for j in range(len(N)):
-            s = s + '%8.1f' % d[i,j]
-    s = s + '%8.1f' % sum (d[i,j] for j in N)   
-    print(s)
-
-u = '%8s' % ''
-for j in range(len(N)):
-    u = u + '%8.1f' % sum (d[i,j] for i in N)      
-print(u)
+#print ('Distance matrix:')
+#
+#s = '%8s' % ''
+#for j in range(len(N)):
+#    s = s + '%8s' % N[j]
+#print (s)    
+#
+#for i in range(len(N)):
+#    s = '%8s' % N[i]
+#    for j in range(len(N)):
+#            s = s + '%8.1f' % d[i,j]
+#    s = s + '%8.1f' % sum (d[i,j] for j in N)   
+#    print(s)
+#
+#u = '%8s' % ''
+#for j in range(len(N)):
+#    u = u + '%8.1f' % sum (d[i,j] for i in N)      
+#print(u)
 
 
 

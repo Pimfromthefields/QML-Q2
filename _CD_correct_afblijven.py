@@ -26,7 +26,7 @@ c = 60
 num_vehicle = 2
 
 eps = 0.0001
-M = 1000 + eps  #nog te bepalen
+M = 5000 + eps  #nog te bepalen
 
 # Creating distance parameter from xloc and yloc
 d = np.zeros((len(node), len(node)))
