@@ -88,7 +88,7 @@ con1 = {}
 con2 = {}
 con3 = {}
 con4 = {}
-con5 = {}
+
 for i in N:
     con1[i] = model.addConstr(rT[i] <= T[i]) # arrival time later than ready time
     con2[i] = model.addConstr(T[i] <= dT[i]) # arrival time before due time
@@ -96,7 +96,6 @@ for i in N:
         con3[i] = model.addConstr(x[i,i,k] == 0)
         for j in range(1,len(N)):
             con4[i,j,k] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M*(1-x[i,j,k]))
-
 
 con6 = {}
 con7 = {}
@@ -111,12 +110,15 @@ for j in range(1,len(N)):
         con9[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == quicksum(x[j,i,k] for i in N))
         con10[j,k] = model.addConstr(y[j,k]<=M/Q[j]*quicksum(x[i,j,k] for i in N))
 
+con5 = {}
 con11 = {}
 con12 = {}
 con13 = {}
 for k in K:
     con5[k] = model.addConstr(w[k] == quicksum(x[0,j,k] for j in range(1,len(N))))
     con11[j] = model.addConstr(quicksum(Q[j]*y[j,k] for j in range(1,len(N))) <= c[k])
+    con12[k] = model.addConstr(quicksum(x[0,j,k] for j in N) <=1)
+    con13[k] = model.addConstr(quicksum(x[j,0,k] for j in N) <=1)
 
 # ---- Solve ----
 
@@ -138,6 +140,7 @@ if model.status == GRB.Status.OPTIMAL: # If optimal solution is found
     
     print('Distance traveled:')
     print(sum(d[i,j]*x[i,j,k].x for i in N for j in N for k in K))
+    
   
 else:
     print ('\nNo feasible solution found')
@@ -197,7 +200,8 @@ print (s)
 for k in range(len(K)):
     s = '%8s' % k
     for j in range(len(N)):
-        s = s + '%8.1f' % y[j,k].x  
+        s = s + '%8.1f' % y[j,k].x 
+    s = s + '%8.1f' % sum (y[j,k].x for j in N)
     print(s)
 
 u = '%8s' % ''
@@ -249,6 +253,28 @@ for i in range(len(res)):
     print(tim)
 
 print(vehicles_list)
+
+print('')
+print ('Results: \n')
+print ('Best solution: %10.2f cost units' % model.objVal)
+
+print ('')   
+print('Distance traveled:')
+print(sum(d[i,j]*x[i,j,k].x for i in N for j in N for k in K))
+
+print ('')   
+print('Total number of fixed costs:')
+print(sum(fc[k]*w[k].x for k in K))
+
+print ('')   
+print('Number of small vehicles:')
+print(sum(fc[k]*w[k].x for k in range(0,10)))
+#print(sum(w[k].x for k in range(2,8)))
+
+print ('')   
+print('Number of large vehicles:')
+print(sum(fc[k]*w[k].x for k in range(10,25)))
+#print(sum(w[k].x for k in range(0,2)))
 
 # --- Visualization ---
 G = nx.DiGraph()
