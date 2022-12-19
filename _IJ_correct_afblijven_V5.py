@@ -40,7 +40,7 @@ for i in range(num_vehicle):
 #fc = [4000,4000,100,100,100,100,100,100]
 
 eps = 0.0001
-M = 100000 + eps  #nog te bepalen
+M = 1000 + eps  #nog te bepalen
 
 # Creating distance parameter from xloc and yloc
 d = np.zeros((len(node), len(node)))
@@ -252,8 +252,6 @@ for i in range(len(res)):
     tim = '%8s' % res[i][0] + '%8.1f' % res[i][1] + '%8s' % Q[res[i][0]] + '%8s' % res[i][2]
     print(tim)
 
-print(vehicles_list)
-
 print('')
 print ('Results: \n')
 print ('Best solution: %10.2f cost units' % model.objVal)
@@ -268,12 +266,12 @@ print(sum(fc[k]*w[k].x for k in K))
 
 print ('')   
 print('Number of small vehicles:')
-print(sum(fc[k]*w[k].x for k in range(0,10)))
+print(sum(w[k].x for k in range(0,10)))
 #print(sum(w[k].x for k in range(2,8)))
 
 print ('')   
 print('Number of large vehicles:')
-print(sum(fc[k]*w[k].x for k in range(10,25)))
+print(sum(w[k].x for k in range(10,25)))
 #print(sum(w[k].x for k in range(0,2)))
 
 # --- Visualization ---

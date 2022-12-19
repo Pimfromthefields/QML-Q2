@@ -23,7 +23,7 @@ dT = file[5].tolist()
 sT = file[6].tolist()
 
 eps = 0.0001
-M = 100000 + eps  #nog te bepalen
+M = 1000 + eps  #larger than the capacity of the largest vehicles
 
 # Creating distance parameter from xloc and yloc
 d = np.zeros((len(node), len(node)))
@@ -97,24 +97,24 @@ else:
     print ('\nNo feasible solution found')
 
 print ('\nREADY\n')
-print ('Distance matrix:')
-
-s = '%8s' % ''
-for j in range(len(N)):
-    s = s + '%8s' % N[j]
-print (s)    
-
-for i in range(len(N)):
-    s = '%8s' % N[i]
-    for j in range(len(N)):
-            s = s + '%8.1f' % d[i,j]
-    s = s + '%8.1f' % sum (d[i,j] for j in N)   
-    print(s)
-
-u = '%8s' % ''
-for j in range(len(N)):
-    u = u + '%8.1f' % sum (d[i,j] for i in N)      
-print(u)
+#print ('Distance matrix:')
+#
+#s = '%8s' % ''
+#for j in range(len(N)):
+#    s = s + '%8s' % N[j]
+#print (s)    
+#
+#for i in range(len(N)):
+#    s = '%8s' % N[i]
+#    for j in range(len(N)):
+#            s = s + '%8.1f' % d[i,j]
+#    s = s + '%8.1f' % sum (d[i,j] for j in N)   
+#    print(s)
+#
+#u = '%8s' % ''
+#for j in range(len(N)):
+#    u = u + '%8.1f' % sum (d[i,j] for i in N)      
+#print(u)
 
 
 

@@ -27,7 +27,7 @@ num_vehicle = 12
 c = 140
 
 eps = 0.0001
-M = 100000 + eps  #nog te bepalen
+M = 1000 + eps  #nog te bepalen
 
 # Creating distance parameter from xloc and yloc
 d = np.zeros((len(node), len(node)))
@@ -129,24 +129,24 @@ else:
 
 
 print ('\nREADY\n')
-print ('Distance matrix:')
-
-s = '%8s' % ''
-for j in range(len(N)):
-    s = s + '%8s' % N[j]
-print (s)    
-
-for i in range(len(N)):
-    s = '%8s' % N[i]
-    for j in range(len(N)):
-            s = s + '%8.1f' % d[i,j]
-    s = s + '%8.1f' % sum (d[i,j] for j in N)   
-    print(s)
-
-u = '%8s' % ''
-for j in range(len(N)):
-    u = u + '%8.1f' % sum (d[i,j] for i in N)      
-print(u)
+#print ('Distance matrix:')
+#
+#s = '%8s' % ''
+#for j in range(len(N)):
+#    s = s + '%8s' % N[j]
+#print (s)    
+#
+#for i in range(len(N)):
+#    s = '%8s' % N[i]
+#    for j in range(len(N)):
+#            s = s + '%8.1f' % d[i,j]
+#    s = s + '%8.1f' % sum (d[i,j] for j in N)   
+#    print(s)
+#
+#u = '%8s' % ''
+#for j in range(len(N)):
+#    u = u + '%8.1f' % sum (d[i,j] for i in N)      
+#print(u)
 
 
 
@@ -232,7 +232,9 @@ for i in range(len(res)):
     tim = '%8s' % res[i][0] + '%8.1f' % res[i][1] + '%8s' % Q[res[i][0]] + '%8s' % res[i][2]
     print(tim)
 
-
+print('')
+print ('Results: \n')
+print ('Best solution: %10.2f cost units' % model.objVal)
 
 # --- Visualization ---
 G = nx.DiGraph()
