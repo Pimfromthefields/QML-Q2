@@ -203,7 +203,7 @@ for i in range(1, len(N)):
     for k in range(len(K)):
         if y[i,k].x >= 0.998:
             vehicles_list[i]=k
-        elif 0 < y[i,k].x < 0.998:
+        elif 0.001 < y[i,k].x < 0.998:
             vehicles_list[i] = '++'
     stored.append(T[i].x)
 
