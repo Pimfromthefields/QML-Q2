@@ -23,8 +23,8 @@ rT = file[4].tolist()
 dT = file[5].tolist()
 sT = file[6].tolist()
 
-num_vehicle = 11
-c = 140
+num_vehicle = 22
+c = 100
 
 eps = 0.0001
 M = 5000 + eps  #nog te bepalen
@@ -201,9 +201,9 @@ for i in range(0,1):
 
 for i in range(1, len(N)):   
     for k in range(len(K)):
-        if y[i,k].x >= 0.99:
+        if y[i,k].x >= 0.998:
             vehicles_list[i]=k
-        elif 0 < y[i,k].x < 0.99:
+        elif 0 < y[i,k].x < 0.998:
             vehicles_list[i] = '++'
     stored.append(T[i].x)
 
