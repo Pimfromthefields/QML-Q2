@@ -14,18 +14,18 @@ model = Model ('Split delivery + heteregeneous fleet VRP Problem - Exercise I & 
 #file = pd.read_csv('data_small.txt', header = None, delim_whitespace=True)  # Load small dataset
 file = pd.read_csv('data_large.txt', header = None, delim_whitespace=True)  # Load large dataset
 
-node = file[0].tolist()
-x_loc = file[1].tolist()
-y_loc = file[2].tolist()
-Q = file[3].tolist() #demand (Quantity)
-rT = file[4].tolist()
-dT = file[5].tolist()
-sT = file[6].tolist()
+node = file[0].tolist()   #node indices
+x_loc = file[1].tolist()  #x coordinates of the nodes
+y_loc = file[2].tolist()  #y coordinates of the nodes
+Q = file[3].tolist()      #demand (Quantity)
+rT = file[4].tolist()     #ready Time
+dT = file[5].tolist()     #due Time
+sT = file[6].tolist()     #service Time
 
-num_vehicle = 25
+num_vehicle = 25          #Length of set vehicles
 
-c = []
-fc = []
+c = []                    #Capacity
+fc = []                   #Fixed costs
 
 for i in range(num_vehicle):
     if i < 10:
@@ -35,12 +35,8 @@ for i in range(num_vehicle):
         c.append(100)
         fc.append(4000)
 
-#num_vehicle = 8
-#c = [100,100,20,20,20,20,20,20]
-#fc = [4000,4000,100,100,100,100,100,100]
-
-eps = 0.0001
-M = 5000 + eps  #nog te bepalen
+eps = 0.0001    #Small positive tolerance
+M = 5000 + eps  #In the same order of magnitude of the summed demand of the large dataset (1260)
 
 # Creating distance parameter from xloc and yloc
 d = np.zeros((len(node), len(node)))
@@ -52,28 +48,35 @@ for i in N:
 
 
 # ---- Sets ----
-N = range(len(node)) # this set is already defined above, but presented here again for completeness.
-K = range(num_vehicle)
+N = range(len(node))      #Set of nodes i (or j). 
+K = range(num_vehicle)    #Set of vehicles k.
 
 
 
 # ---- Decision Variables ----
-x = {}
-T = {}  
+#Binary variable indicating whether the vehicle visits node j after node i
+x = {}  
 for i in N:
-     T[i]=model.addVar(lb = 0, vtype=GRB.CONTINUOUS, name="T["+str(i)+"]")
-     for j in N:
-         for k in K:
-             x[i,j,k] = model.addVar(vtype = GRB.BINARY, name = 'x[' + str(i) + ',' + str(j) + ',' + str(k) + ']')
+    for j in N:
+        for k in K:
+            x[i,j,k] = model.addVar(vtype = GRB.BINARY, name = 'x[' + str(i) + ',' + str(j) + ',' + str(k) + ']')
 
-w = {}
-for k in K:
-    w[k] = model.addVar(vtype = GRB.BINARY, name="w["+str(k)+"]")
+#Arrival time of vehicle k at node i (continuous). 
+T = {}
+for i in N:
+    for k in K:
+        T[i,k]=model.addVar(lb = 0, vtype=GRB.CONTINUOUS, name="T[' + str(i) + ',' + str(k) + ']")
 
+#Continuous variable indicating the proportion of j’th node’s demand delivered by vehicle k 
 y = {}  
 for j in N:
     for k in K:
         y[j,k] = model.addVar(lb = 0, ub = 1, vtype = GRB.CONTINUOUS, name = 'y[' + str(j) + ',' + str(k) + ']')
+
+#Binary variable indicating if vehicle k is used (1) or not (0)
+w = {}
+for k in K:
+    w[k] = model.addVar(vtype = GRB.BINARY, name="w["+str(k)+"]")
 
 
 model.update ()
@@ -84,40 +87,45 @@ model.setObjective (quicksum(d[i,j] * x[i,j,k] for i in N for j in N for k in K)
 model.modelSense = GRB.MINIMIZE
 model.update ()
 
-con1 = {}
-con2 = {}
-con3 = {}
-con4 = {}
+# ---- Constraints --------
 
+# Time constraints
+con1 = {} #Arrival time should be later than ready time
+con2 = {} #Arrival time should not be later than due time
+con3 = {} #Ensures that arrival time of vehicle k at j is equal to the sum of the arrival time at i, the sT and rT. 
 for i in N:
-    con1[i] = model.addConstr(rT[i] <= T[i]) # arrival time later than ready time
-    con2[i] = model.addConstr(T[i] <= dT[i]) # arrival time before due time
-    for k in K:    
-        con3[i] = model.addConstr(x[i,i,k] == 0)
-        for j in range(1,len(N)):
-            con4[i,j,k] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M*(1-x[i,j,k]))
-
-con6 = {}
-con7 = {}
-con8 = {}
-con9 = {}
-con10 = {}
-for j in range(1,len(N)):
-    con6[j] =  model.addConstr(quicksum(y[j,k] for k in K) == 1)
-    con7[j] = model.addConstr(quicksum(x[i,j,k] for k in K for i in N)>=1)
-    con8[j] = model.addConstr(quicksum(x[j,i,k] for k in K for i in N)>=1)
     for k in K:
-        con9[j] = model.addConstr(quicksum(x[i,j,k] for i in N) == quicksum(x[j,i,k] for i in N))
-        con10[j,k] = model.addConstr(y[j,k]<=M/Q[j]*quicksum(x[i,j,k] for i in N))
+        con1[i,k] = model.addConstr(rT[i] <= T[i,k]) 
+        con2[i,k] = model.addConstr(T[i,k] <= dT[i])  
+        for j in range(1,len(N)):
+            con3[i,j,k] = model.addConstr(T[j,k] >= T[i,k] + sT[i] + d[i,j] - M*(1-x[i,j,k]))
 
-con5 = {}
-con11 = {}
-con12 = {}
-con13 = {}
+con4 = {} #Ensures that a vehicle cannot travel from point i to the same point i
+for i in N:
+    for k in K:
+        con4[i,k] = model.addConstr(x[i,i,k] == 0)
+        
+con5 = {} #Ensures that the demand is fully satisfied for every node.
+con6 = {} #Ensures that every node is visited at least once, but possibly multiple times.
+con7 = {} #Ensures that every node is exited at least once, but possibly multiple times.
+con8 = {} #Ensures that a vehicle k exits all nodes j which it visits.
+con9 = {} #Ensures that every vehicle fulfils demand while adhering to the maximum capacity
+for j in range(1,len(N)):
+    con5[j] =  model.addConstr(quicksum(y[j,k] for k in K) == 1)
+    con6[j] = model.addConstr(quicksum(x[i,j,k] for k in K for i in N)>=1)
+    con7[j] = model.addConstr(quicksum(x[j,i,k] for k in K for i in N)>=1)
+    for k in K:
+        con8[j,k] = model.addConstr(quicksum(x[i,j,k] for i in N) == quicksum(x[j,i,k] for i in N))
+        con9[j,k] = model.addConstr(y[j,k]<=M/Q[j]*quicksum(x[i,j,k] for i in N))
+
+con10 = {} #Defining variable w[k]
+con11 = {} #New: Ensures that the packages that a vehicle carries does not exceed the capacity.
+con12 = {} #New: Ensures that every route starts at node 0.
+con13 = {} #New: Ensures that every route ends at node 0.
 for k in K:
-    con5[k] = model.addConstr(w[k] == quicksum(x[0,j,k] for j in range(1,len(N))))
+    con10[k] = model.addConstr(w[k] == quicksum(x[0,j,k] for j in range(1,len(N))))
     con11[j] = model.addConstr(quicksum(Q[j]*y[j,k] for j in range(1,len(N))) <= c[k])
-    #con12[k] = model.addConstr(quicksum(x[0,j,k] for j in N) <=1)
+    con12[k] = model.addConstr(quicksum(x[0,j,k] for j in N) <=1)
     con13[k] = model.addConstr(quicksum(x[j,0,k] for j in N) <=1)
 
 # ---- Solve ----
@@ -216,7 +224,7 @@ vehicles_list = []
 for i in N:
     vehicles_list.append('-1')
 for i in range(0,1):
-    stored.append(T[i].x)
+    stored.append(T[i,k].x)
     vehicles_list[i]='all'
 
 for i in range(1, len(N)):   
@@ -225,7 +233,7 @@ for i in range(1, len(N)):
             vehicles_list[i]=k
         elif 0.001 < y[i,k].x < 0.998:
             vehicles_list[i] = '++'
-    stored.append(T[i].x)
+    stored.append(T[i,k].x)
 
 nodes = node
 
