@@ -23,8 +23,8 @@ rT = file[4].tolist()
 dT = file[5].tolist()
 sT = file[6].tolist()
 
-num_vehicle = 12
-c = 120
+num_vehicle = 11
+c = 200
 
 eps = 0.0001
 M = 5000 + eps  #nog te bepalen
@@ -48,9 +48,9 @@ K = range(num_vehicle)
 x = {}
 T = {}  
 for i in N:
-    T[i]=model.addVar(lb = 0, vtype=GRB.CONTINUOUS, name="T["+str(i)+"]")
-    for j in N:
-        for k in K:
+    for k in K:
+        T[i,k]=model.addVar(lb = 0, vtype=GRB.CONTINUOUS, name="T["+str(i)+"]")
+        for j in N:
              x[i,j,k] = model.addVar(vtype = GRB.BINARY, name = 'x[' + str(i) + ',' + str(j) + ',' + str(k) + ']')
 
 y = {}  
@@ -72,12 +72,12 @@ con2 = {}
 con3 = {}
 con4 = {}
 for i in N:
-    con1[i] = model.addConstr(rT[i] <= T[i]) # arrival time later than ready time
-    con2[i] = model.addConstr(T[i] <= dT[i]) # arrival time before due time
     for k in K:
+        con1[i] = model.addConstr(rT[i] <= T[i,k]) # arrival time later than ready time
+        con2[i] = model.addConstr(T[i,k] <= dT[i]) # arrival time before due time   
         con3[i] = model.addConstr(x[i,i,k] == 0)
         for j in range(1,len(N)):
-            con4[i,j,k] = model.addConstr(T[j] >= T[i] + sT[i] + d[i,j] - M*(1-x[i,j,k]))
+            con4[i,j,k] = model.addConstr(T[j,k] >= T[i,k] + sT[i] + d[i,j] - M*(1-x[i,j,k]))
 
 
 con5 = {}
@@ -196,8 +196,9 @@ vehicles_list = []
 for i in N:
     vehicles_list.append('-1')
 for i in range(0,1):
-    stored.append(T[i].x)
-    vehicles_list[i]='all'
+    for k in K:
+        stored.append(T[i,k].x)
+        vehicles_list[i]='all'
 
 for i in range(1, len(N)):   
     for k in range(len(K)):
@@ -205,7 +206,7 @@ for i in range(1, len(N)):
             vehicles_list[i]=k
         elif 0.001 < y[i,k].x < 0.998:
             vehicles_list[i] = '++'
-    stored.append(T[i].x)
+    stored.append(T[i,k].x)
 
 nodes = node
 
