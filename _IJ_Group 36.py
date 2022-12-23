@@ -30,7 +30,7 @@ fc = []                   #Fixed costs
 for i in range(num_vehicle):
     if i < 10:
         c.append(20)
-        fc.append(100)
+        fc.append(800)
     else:
         c.append(100)
         fc.append(4000)
@@ -124,7 +124,7 @@ con12 = {} #New: Ensures that every route starts at node 0.
 con13 = {} #New: Ensures that every route ends at node 0.
 for k in K:
     con10[k] = model.addConstr(w[k] == quicksum(x[0,j,k] for j in range(1,len(N))))
-    con11[j] = model.addConstr(quicksum(Q[j]*y[j,k] for j in range(1,len(N))) <= c[k])
+    con11[k] = model.addConstr(quicksum(Q[j]*y[j,k] for j in range(1,len(N))) <= c[k])
     con12[k] = model.addConstr(quicksum(x[0,j,k] for j in N) <=1)
     con13[k] = model.addConstr(quicksum(x[j,0,k] for j in N) <=1)
 
